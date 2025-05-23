@@ -1,16 +1,14 @@
 <?php
 
-
-// app/Models/User.php
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens; // Jika menggunakan Sanctum untuk API
+use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable // implements MustVerifyEmail (Uncomment jika pakai verifikasi email)
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -18,7 +16,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
+        'role', // PASTIKAN INI ADA
     ];
 
     protected $hidden = [
@@ -26,28 +24,25 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed', // Otomatis hash password
-    ];
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
 
     public function karyawan()
     {
         return $this->hasOne(Karyawan::class);
     }
 
-    // Di dalam App\Models\Karyawan.php
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    public function isAdmin()
+    public function isAdmin(): bool
     {
         return $this->role === 'admin';
     }
 
-    public function isKaryawan()
+    public function isKaryawan(): bool
     {
         return $this->role === 'karyawan';
     }
