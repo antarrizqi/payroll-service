@@ -8,7 +8,6 @@
     <p class="text-gray-600">Selamat datang, {{ $karyawan->user->name ?? Auth::user()->name }}!</p>
 </div>
 
-<!-- Kartu Informasi Karyawan & Presensi -->
 <div class="p-6 mb-6 bg-white rounded-lg shadow">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
@@ -67,30 +66,35 @@
     </div>
 </div>
 
-<!-- Riwayat Absensi Pribadi (Beberapa hari terakhir) -->
 <div class="mt-8">
     <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-semibold text-gray-800">Riwayat Absensi Terbaru</h2>
-        <a href="{{ route('karyawan.riwayat.absensi') }}" class="text-sm text-indigo-600 hover:text-indigo-900">Lihat Semua Riwayat</a>
+        {{-- Judul diubah sedikit agar sesuai dengan data yang ditampilkan (5 hari terakhir, bukan semua riwayat) --}}
+        <h2 class="text-lg font-semibold text-gray-800">Riwayat Absensi Terbaru (5 Hari Terakhir)</h2>
+        <a href="{{ route('karyawan.riwayat.absensi') }}" class="text-sm text-indigo-600 hover:text-indigo-900">
+            Lihat Semua Riwayat →
+        </a>
     </div>
     <div class="overflow-x-auto bg-white rounded-lg shadow">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Tanggal</th>
-                    <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Jam Masuk</th>
-                    <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Jam Pulang</th>
-                    <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Status</th>
-                    <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Keterangan</th>
+                    {{-- Nama kolom disesuaikan dengan view riwayat_absensi.blade.php untuk konsistensi --}}
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hari</th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Jam Masuk</th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Jam Pulang</th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Keterangan</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-                @forelse ($riwayatAbsensi as $absensi)
+                @forelse ($riwayatAbsensiTerbaru as $absensi) {{-- Tetap menggunakan $riwayatAbsensiTerbaru --}}
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $absensi->tanggal->translatedFormat('d M Y, l') }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $absensi->jam_masuk ? \Carbon\Carbon::parse($absensi->jam_masuk)->format('H:i') : '-' }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $absensi->jam_pulang ? \Carbon\Carbon::parse($absensi->jam_pulang)->format('H:i') : '-' }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $absensi->tanggal->translatedFormat('d M Y') }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $absensi->tanggal->translatedFormat('l') }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">{{ $absensi->jam_masuk ? \Carbon\Carbon::parse($absensi->jam_masuk)->format('H:i') : '-' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">{{ $absensi->jam_pulang ? \Carbon\Carbon::parse($absensi->jam_pulang)->format('H:i') : '-' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
                                 @if($absensi->status == 'hadir') bg-green-100 text-green-800
                                 @elseif($absensi->status == 'izin') bg-yellow-100 text-yellow-800
@@ -103,16 +107,19 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-4 text-sm text-center text-gray-500">Belum ada riwayat absensi.</td>
+                        <td colspan="6" class="px-6 py-4 text-sm text-center text-gray-500">Belum ada riwayat absensi.</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
-    @if($riwayatAbsensi->hasPages())
+    {{-- Bagian paginasi dihapus karena $riwayatAbsensiTerbaru bukan objek Paginator --}}
+    {{--
+    @if($riwayatAbsensi->hasPages())  // <--- INI BAGIAN YANG DIHAPUS/DIKOMENTARI
         <div class="mt-4">
-            {{ $riwayatAbsensi->links() }} {{-- Untuk Paginasi --}}
+            {{ $riwayatAbsensi->links() }}
         </div>
     @endif
+    --}}
 </div>
 @endsection

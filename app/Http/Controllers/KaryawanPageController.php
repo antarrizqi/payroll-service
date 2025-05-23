@@ -31,17 +31,17 @@ class KaryawanPageController extends Controller
 
         $today = Carbon::today();
         $absensiHariIni = Absensi::where('karyawan_id', $karyawan->id)
-                                ->whereDate('tanggal', $today)
-                                ->first();
+            ->whereDate('tanggal', $today)
+            ->first();
 
         $riwayatAbsensiTerbaru = Absensi::where('karyawan_id', $karyawan->id)
-                                     ->orderBy('tanggal', 'desc')
-                                     ->orderBy('created_at', 'desc')
-                                     ->take(5) // Ambil 5 data terbaru untuk ringkasan di dashboard
-                                     ->get();
+            ->orderBy('tanggal', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->take(5) // Ambil 5 data terbaru untuk ringkasan di dashboard
+            ->get();
 
         // Mengirim data ke view 'karyawan.dashboard'
-        return view('karyawan.dashboard', compact(
+        return view('halaman.karyawan.dashboard', compact(
             'karyawan',
             'absensiHariIni',
             'riwayatAbsensiTerbaru'
@@ -63,8 +63,8 @@ class KaryawanPageController extends Controller
         $now = Carbon::now();
 
         $absensiHariIni = Absensi::where('karyawan_id', $karyawan->id)
-                                ->whereDate('tanggal', $today)
-                                ->first();
+            ->whereDate('tanggal', $today)
+            ->first();
 
         if ($absensiHariIni && $absensiHariIni->jam_masuk) {
             return redirect()->route('karyawan.dashboard')->with('warning', 'Anda sudah melakukan presensi masuk hari ini.');
@@ -72,7 +72,7 @@ class KaryawanPageController extends Controller
 
         // Cegah presensi masuk jika statusnya izin, sakit, atau tanpa keterangan
         if ($absensiHariIni && in_array($absensiHariIni->status, ['izin', 'sakit', 'tanpa_keterangan'])) {
-             return redirect()->route('karyawan.dashboard')->with('warning', 'Anda tercatat ' . $absensiHariIni->status . ' hari ini. Tidak bisa melakukan presensi masuk.');
+            return redirect()->route('karyawan.dashboard')->with('warning', 'Anda tercatat ' . $absensiHariIni->status . ' hari ini. Tidak bisa melakukan presensi masuk.');
         }
 
         if ($absensiHariIni) { // Jika ada record (misalnya 'tanpa keterangan' default) tapi belum jam masuk
@@ -107,8 +107,8 @@ class KaryawanPageController extends Controller
         $now = Carbon::now();
 
         $absensiHariIni = Absensi::where('karyawan_id', $karyawan->id)
-                                ->whereDate('tanggal', $today)
-                                ->first();
+            ->whereDate('tanggal', $today)
+            ->first();
 
         if (!$absensiHariIni || !$absensiHariIni->jam_masuk) {
             return redirect()->route('karyawan.dashboard')->with('error', 'Anda belum melakukan presensi masuk hari ini untuk bisa presensi pulang.');
@@ -120,7 +120,7 @@ class KaryawanPageController extends Controller
 
         // Hanya bisa presensi pulang jika statusnya 'hadir'
         if ($absensiHariIni->status !== 'hadir') {
-             return redirect()->route('karyawan.dashboard')->with('warning', 'Status absensi Anda bukan "hadir" (' . $absensiHariIni->status . '), tidak bisa melakukan presensi pulang.');
+            return redirect()->route('karyawan.dashboard')->with('warning', 'Status absensi Anda bukan "hadir" (' . $absensiHariIni->status . '), tidak bisa melakukan presensi pulang.');
         }
 
         $absensiHariIni->update([
@@ -154,9 +154,9 @@ class KaryawanPageController extends Controller
         }
 
         $riwayatAbsensiKaryawan = $query->orderBy('tanggal', 'desc')
-                                       ->orderBy('created_at', 'desc')
-                                       ->paginate(15) // Jumlah item per halaman
-                                       ->withQueryString(); // Agar parameter filter tetap ada di link paginasi
+            ->orderBy('created_at', 'desc')
+            ->paginate(15) // Jumlah item per halaman
+            ->withQueryString(); // Agar parameter filter tetap ada di link paginasi
 
         return view('karyawan.riwayat_absensi', compact('karyawan', 'riwayatAbsensiKaryawan'));
     }
